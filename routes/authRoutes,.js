@@ -8,11 +8,11 @@ import UserModel from "../models/userModel";
 import { tryCatch } from "bullmq";
 
 // create a new express router
-const router = express.Router();
+const authRouter = express.Router();
 
 // register user API
 
-router.post("/register", async (req, res, next) => {
+authRouter.post("/register", async (req, res, next) => {
   // extract user details from req body
   try {
     const { name, email, password } = req.body;
@@ -28,7 +28,7 @@ router.post("/register", async (req, res, next) => {
 });
 
 
-router.post("/login",async(req,res)=>{
+authRouter.post("/login",async(req,res)=>{
    const {email,password} = req.body
    const user =  await UserModel.findOne({email})
    if(!user){
@@ -44,4 +44,4 @@ router.post("/login",async(req,res)=>{
 })
 
 
-export default router
+export default authRouter

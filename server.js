@@ -11,6 +11,7 @@ import videoRouter from "./routes/videoRoutes.js";
 import emailRouter from "./routes/emailRoutes.js";
 import authRouter from "./routes/authRoutes.js";
 import userRouter from "./routes/userRouter.js";
+import aiRouter from "./routes/aiRoutes.js"
 
 //load environment variables from .env file
 dotenv.config();
@@ -41,6 +42,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/video", videoRouter);
 app.use("/api/email", emailRouter);
 app.use("/api/user", userRouter);
+app.use("/api/ai", aiRouter);
 
 //set port number default to 5000
 const PORT = process.env.PORT || 5000;

@@ -11,6 +11,7 @@ import ffmpegPath from "@ffmpeg-installer/ffmpeg";
 import { S3Client } from "@aws-sdk/client-s3";
 import dotenv from "dotenv";
 import { authenticationToken } from "../middlewares/authMiddleware.js";
+import WatchHistory from "../models/watchHistory.js"
 
 dotenv.config();
 ffmpeg.setFfmpegPath(ffmpegPath.path);
@@ -248,21 +249,29 @@ videoRouter.post("/watchHistory", authenticationToken, async (req, res) => {
   try {
     const userId = req.user.id;
     const videoId = req.body.videoId;
-    const watchData = await WatchHistory.findById(userId);
+    // Fix: Use findOne instead of findById
+    let watchData = await WatchHistory.findOne({ userId });
     if (watchData) {
       const videoIdExist = watchData.videoIds?.some(
         (id) => id.toString() === videoId
       );
+
       if (!videoIdExist) {
         watchData.videoIds.push(videoId);
+        await watchData.save(); // Fix: Save the updated document
       }
+
+      return res.status(200).json({
+        message: "Watch history updated successfully",
+        videoIds: watchData.videoIds
+      });
     } else {
       const newWatchData = new WatchHistory({
         userId,
         videoIds: [videoId]
       });
       await newWatchData.save();
-      res.status(200).json({
+      return res.status(200).json({
         message: "Watch history updated successfully",
         videoIds: newWatchData.videoIds
       });
@@ -270,7 +279,7 @@ videoRouter.post("/watchHistory", authenticationToken, async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Error updating watch history",
-      error
+      error: error.message
     });
   }
 });

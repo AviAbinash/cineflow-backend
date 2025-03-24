@@ -11,7 +11,8 @@ import ffmpegPath from "@ffmpeg-installer/ffmpeg";
 import { S3Client } from "@aws-sdk/client-s3";
 import dotenv from "dotenv";
 import { authenticationToken } from "../middlewares/authMiddleware.js";
-import WatchHistory from "../models/watchHistory.js"
+import WatchHistory from "../models/watchHistory.js";
+import mongoose from "mongoose";
 
 dotenv.config();
 ffmpeg.setFfmpegPath(ffmpegPath.path);
@@ -55,36 +56,45 @@ const upload = multer({
 // });
 
 // ✅ API Route: Upload Video to AWS S3
-videoRouter.post("/upload", upload.fields([{ name: "url", maxCount: 1 }, { name: "poster", maxCount: 1 }]), async (req, res) => {
-  try {
-    if (!req.files || !req.files["url"] || !req.files["poster"]) {
-      return res.status(400).json({ error: "Both video and image must be uploaded" });
+videoRouter.post(
+  "/upload",
+  upload.fields([
+    { name: "url", maxCount: 1 },
+    { name: "poster", maxCount: 1 },
+  ]),
+  async (req, res) => {
+    try {
+      if (!req.files || !req.files["url"] || !req.files["poster"]) {
+        return res
+          .status(400)
+          .json({ error: "Both video and image must be uploaded" });
+      }
+
+      const videoFile = new Video({
+        title: req.body.title, // Video file original name
+        type: req.body.type,
+        genre: req.body.genre,
+        url: req.files["url"][0].location, // S3 URL of the video
+        poster: req.files["poster"][0].location, // S3 URL of the image
+      });
+
+      console.log("videoFile", videoFile);
+      // Save the video file and image file information in the database
+      await videoFile.save();
+
+      res.json({
+        message: "Files uploaded successfully to S3",
+        videoUrl: req.files["url"][0].location, // Video file URL
+        imageUrl: req.files["poster"][0].location, // Image file URL
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "Error Uploading Files",
+        error,
+      });
     }
-
-    const videoFile = new Video({
-      title: req.body.title, // Video file original name
-      type: req.body.type,
-      genre: req.body.genre,
-      url: req.files["url"][0].location, // S3 URL of the video
-      poster: req.files["poster"][0].location, // S3 URL of the image
-    });
-
-    console.log("videoFile", videoFile);
-    // Save the video file and image file information in the database
-    await videoFile.save();
-
-    res.json({
-      message: "Files uploaded successfully to S3",
-      videoUrl: req.files["url"][0].location, // Video file URL
-      imageUrl: req.files["poster"][0].location, // Image file URL
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: "Error Uploading Files",
-      error,
-    });
   }
-});
+);
 // videoRouter.post("/upload", upload.single("url"), async (req, res) => {
 //   try {
 //     if (!req.file) {
@@ -159,7 +169,7 @@ videoRouter.get("/getAllVideos", async (req, res) => {
 
 videoRouter.post("/getAllMovies", async (req, res) => {
   try {
-    const videos = await Video.find({type:req.body.type});
+    const videos = await Video.find({ type: req.body.type });
     res.status(200).json({
       message: "Videos Fetched Successfully",
       videos: videos,
@@ -174,7 +184,7 @@ videoRouter.post("/getAllMovies", async (req, res) => {
 
 videoRouter.post("/getAllTvShows", async (req, res) => {
   try {
-    const videos = await Video.find({type:req.body.type});
+    const videos = await Video.find({ type: req.body.type });
     res.status(200).json({
       message: "Videos Fetched Successfully",
       videos: videos,
@@ -186,7 +196,6 @@ videoRouter.post("/getAllTvShows", async (req, res) => {
     });
   }
 });
-
 
 videoRouter.post("/:videoId/like", authenticationToken, async (req, res) => {
   try {
@@ -212,11 +221,11 @@ videoRouter.post("/:videoId/like", authenticationToken, async (req, res) => {
     await video.save();
     res.status(200).json({
       message: "Updated successfully",
-      likes: video.likes
+      likes: video.likes,
     });
   } catch (error) {
     res.status(500).json({
-      message: "Error updating likes"
+      message: "Error updating likes",
     });
   }
 });
@@ -231,16 +240,16 @@ videoRouter.post("/:videoId/comment", authenticationToken, async (req, res) => {
     video.comments.push({
       userId: userId,
       videoId: req.params.videoId,
-      text: req.body.text
+      text: req.body.text,
     });
     await video.save();
     res.status(200).json({
       message: "Updated successfully",
-      comments: video.comments
+      comments: video.comments,
     });
   } catch (error) {
     res.status(500).json({
-      message: "Error updating comments"
+      message: "Error updating comments",
     });
   }
 });
@@ -263,26 +272,93 @@ videoRouter.post("/watchHistory", authenticationToken, async (req, res) => {
 
       return res.status(200).json({
         message: "Watch history updated successfully",
-        videoIds: watchData.videoIds
+        videoIds: watchData.videoIds,
       });
     } else {
       const newWatchData = new WatchHistory({
         userId,
-        videoIds: [videoId]
+        videoIds: [videoId],
       });
       await newWatchData.save();
       return res.status(200).json({
         message: "Watch history updated successfully",
-        videoIds: newWatchData.videoIds
+        videoIds: newWatchData.videoIds,
       });
     }
   } catch (error) {
     res.status(500).json({
       message: "Error updating watch history",
-      error: error.message
+      error: error.message,
     });
   }
 });
 
+videoRouter.get("/getWatchHistory", authenticationToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    // Fix: Use findOne instead of findById
+    let watchData = await WatchHistory.findOne({ userId });
+    if (!watchData) {
+      return res.status(200).json({ message: "There is no watch history" });
+    }
+    const videoData = await Video.find({ _id: { $in: watchData.videoIds } });
+    res?.status(200).json({
+      message: "watch history found",
+      watchHistory: videoData,
+    });
+    console.log(watchData);
+  } catch (error) {
+    res.status(500).json({
+      message: "Error updating watch history",
+      error: error.message,
+    });
+  }
+});
+
+videoRouter.get(
+  "/:videoId/getComments",
+  authenticationToken,
+  async (req, res) => {
+    try {
+      const result = await mongoose.connection.db
+        .collection("videos")
+        .aggregate([
+          { $match: { _id: new mongoose.Types.ObjectId(req.params?.videoId) } },
+          { $unwind: "$comments" },
+          {
+            $lookup: {
+              from: "users", // Reference to users collection
+              localField: "comments.userId",
+              foreignField: "_id",
+              as: "userDetails",
+            },
+          },
+          { $unwind: "$userDetails" }, // Flatten userDetails array
+          {
+            $project: {
+              _id: 0,
+              user: {
+                id: "$userDetails._id",
+                name: "$userDetails.name",
+              },
+              comment: "$comments.text",
+              createdAt: "$comments.createdAt",
+            },
+          },
+        ])
+        .toArray();
+
+      // console.log(result);
+
+      // console.log(result);
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(500).json({
+        message: "Error updating watch history",
+        error: error.message,
+      });
+    }
+  }
+);
 
 export default videoRouter;

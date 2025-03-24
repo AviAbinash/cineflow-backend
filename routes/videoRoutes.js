@@ -244,6 +244,7 @@ videoRouter.post("/:videoId/comment", authenticationToken, async (req, res) => {
     });
     await video.save();
     res.status(200).json({
+      status: 200,
       message: "Updated successfully",
       comments: video.comments,
     });
@@ -340,6 +341,7 @@ videoRouter.get(
               user: {
                 id: "$userDetails._id",
                 name: "$userDetails.name",
+                avatar: "$userDetails.avatar",
               },
               comment: "$comments.text",
               createdAt: "$comments.createdAt",
@@ -347,11 +349,14 @@ videoRouter.get(
           },
         ])
         .toArray();
-
+      const getResponse = {
+        status: 200,
+        result,
+      };
       // console.log(result);
 
       // console.log(result);
-      res.status(200).json(result);
+      res.status(200).json(getResponse);
     } catch (error) {
       res.status(500).json({
         message: "Error updating watch history",
@@ -360,5 +365,51 @@ videoRouter.get(
     }
   }
 );
+
+videoRouter.get("/:videoId/getLikes", authenticationToken, async (req, res) => {
+  try {
+    const result = await mongoose.connection.db
+      .collection("videos")
+      .aggregate([
+        { $match: { _id: new mongoose.Types.ObjectId(req.params?.videoId) } },
+        { $unwind: "$likes" },
+        {
+          $lookup: {
+            from: "users", // Reference to users collection
+            localField: "likes.userId",
+            foreignField: "_id",
+            as: "userDetails",
+          },
+        },
+        // { $unwind: "$userDetails" }, // Flatten userDetails array
+        // {
+        //   $project: {
+        //     _id: 0,
+        //     user: {
+        //       id: "$userDetails._id",
+        //       name: "$userDetails.name",
+        //       avatar:"$userDetails.avatar"
+        //     },
+        //     like: "likes",
+        //     // createdAt: "$comments.createdAt",
+        //   },
+        // },
+      ])
+      .toArray();
+    //  const getResponse = {
+    //   status:200,
+    //   result
+    //  }
+    // console.log(result);
+
+    // console.log(result);
+    res.status(200).json(getResponse);
+  } catch (error) {
+    res.status(500).json({
+      message: "Error updating watch history",
+      error: error.message,
+    });
+  }
+});
 
 export default videoRouter;

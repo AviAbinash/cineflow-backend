@@ -78,7 +78,7 @@ videoRouter.post(
         poster: req.files["poster"][0].location, // S3 URL of the image
       });
 
-      console.log("videoFile", videoFile);
+      // console.log("videoFile", videoFile);
       // Save the video file and image file information in the database
       await videoFile.save();
 
@@ -213,7 +213,7 @@ videoRouter.post("/:videoId/like", authenticationToken, async (req, res) => {
       video.likesBy = video.likesBy.filter((item) => {
         return item.userId.toString() != userId;
       });
-      console.log(video.likesBy);
+      // console.log(video.likesBy);
     } else {
       video.likes += 1;
       video.likesBy.push({ userId: userId, videoId: req.params.videoId });
@@ -233,7 +233,7 @@ videoRouter.post("/:videoId/like", authenticationToken, async (req, res) => {
 videoRouter.post("/:videoId/comment", authenticationToken, async (req, res) => {
   try {
     const video = await Video.findById(req.params.videoId);
-    console.log("video", video);
+    // console.log("video", video);
     if (!video) res.status(404).json({ message: "Error! Video not found" });
     //getting the user id from the authentication middleware which decodes the token and retuen the user data
     const userId = req.user.id;
@@ -307,7 +307,7 @@ videoRouter.get("/getWatchHistory", authenticationToken, async (req, res) => {
       message: "watch history found",
       watchHistory: videoData,
     });
-    console.log(watchData);
+    // console.log(watchData);
   } catch (error) {
     res.status(500).json({
       message: "Error updating watch history",

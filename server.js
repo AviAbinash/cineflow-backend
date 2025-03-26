@@ -17,9 +17,10 @@ import aiRouter from "./routes/aiRoutes.js"
 dotenv.config();
 const corsOptions = {
   origin: [
-    "http://ec2-13-60-49-247.eu-north-1.compute.amazonaws.com:3000/",
-    "http://ec2-51-21-201-59.eu-north-1.compute.amazonaws.com:3000/",
-    "http://localhost:3000"
+    "*"
+    // "http://ec2-13-60-49-247.eu-north-1.compute.amazonaws.com:3000/",
+    // "http://ec2-51-21-201-59.eu-north-1.compute.amazonaws.com:3000/",
+    // "http://localhost:3000"
     // process.env.FRONTEND_LOCAL_URL,  // Local development
     // process.env.FRONTEND_DEPLOYED_URL,  // Your production frontend URL
     // process.env.FRONTEND_RAHUL_DEPLOYED_URL

@@ -44,6 +44,7 @@ app.use(cors({
     const allowedOrigins = [
       'http://ec2-51-21-201-59.eu-north-1.compute.amazonaws.com:3000',
       'http://ec2-13-60-49-247.eu-north-1.compute.amazonaws.com:3000',
+      'http://ec2-13-61-15-102.eu-north-1.compute.amazonaws.com:3000/auth/login',
       'http://localhost:3000'
     ];
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {

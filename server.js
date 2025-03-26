@@ -11,13 +11,13 @@ import videoRouter from "./routes/videoRoutes.js";
 import emailRouter from "./routes/emailRoutes.js";
 import authRouter from "./routes/authRoutes.js";
 import userRouter from "./routes/userRouter.js";
-import aiRouter from "./routes/aiRoutes.js"
+import aiRouter from "./routes/aiRoutes.js";
 
 //load environment variables from .env file
 dotenv.config();
 const corsOptions = {
   origin: [
-    "*"
+    "*",
     // "http://ec2-13-60-49-247.eu-north-1.compute.amazonaws.com:3000/",
     // "http://ec2-51-21-201-59.eu-north-1.compute.amazonaws.com:3000/",
     // "http://localhost:3000"
@@ -26,8 +26,8 @@ const corsOptions = {
     // process.env.FRONTEND_RAHUL_DEPLOYED_URL
     // Add any other domains you want to allow
   ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 };
 
@@ -38,22 +38,25 @@ const app = express();
 
 //middlewares
 //enabling cors to allow nextjs front end to communicate backend
-app.use(cors({
-  origin: function (origin, callback) {
-    // Allow specific origins
-    const allowedOrigins = [
-      'http://ec2-51-21-201-59.eu-north-1.compute.amazonaws.com:3000',
-      'http://ec2-13-60-49-247.eu-north-1.compute.amazonaws.com:3000',
-      'http://ec2-13-61-15-102.eu-north-1.compute.amazonaws.com:3000',
-      'http://localhost:3000'
-    ];
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  }
-}));
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow specific origins
+      const allowedOrigins = [
+        "*",
+        "http://ec2-51-21-201-59.eu-north-1.compute.amazonaws.com:3000",
+        "http://ec2-13-60-49-247.eu-north-1.compute.amazonaws.com:3000",
+        "http://ec2-13-61-15-102.eu-north-1.compute.amazonaws.com:3000",
+        "http://localhost:3000",
+      ];
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+  })
+);
 //parse incoming request
 app.use(express.json());
 

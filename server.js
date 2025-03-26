@@ -18,7 +18,8 @@ dotenv.config();
 const corsOptions = {
   origin: [
     process.env.FRONTEND_LOCAL_URL,  // Local development
-    process.env.FRONTEND_NETLIFY_DEPLOYED_URL,  // Your production frontend URL
+    process.env.FRONTEND_DEPLOYED_URL,  // Your production frontend URL
+    process.env.FRONTEND_RAHUL_DEPLOYED_URL
     // Add any other domains you want to allow
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -26,6 +27,7 @@ const corsOptions = {
   credentials: true,
 };
 
+console.log(corsOptions)
 
 //initialize express app
 const app = express();

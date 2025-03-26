@@ -77,7 +77,7 @@ aiRouter.get("/airecommended-movies", authenticationToken, async (req, res) => {
     Return the rearranged movie list as a JSON array, prioritizing movies with genres from the user's watchlist, and placing the watchlist movies at the beggining of the list.
     `;
     const result = await model.generateContent(prompt);
-    console.log(result,"result")
+    // console.log(result,"result")
     const response = await result.response;
     const text = response.text();
 

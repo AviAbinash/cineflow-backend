@@ -15,13 +15,24 @@ import aiRouter from "./routes/aiRoutes.js"
 
 //load environment variables from .env file
 dotenv.config();
+const corsOptions = {
+  origin: [
+    process.env.FRONTEND_LOCAL_URL,  // Local development
+    process.env.FRONTEND_NETLIFY_DEPLOYED_URL,  // Your production frontend URL
+    // Add any other domains you want to allow
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+};
+
 
 //initialize express app
 const app = express();
 
 //middlewares
 //enabling cors to allow nextjs front end to communicate backend
-app.use(cors());
+app.use(cors(corsOptions));;
 //parse incoming request
 app.use(express.json());
 

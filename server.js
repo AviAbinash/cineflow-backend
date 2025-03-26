@@ -42,8 +42,8 @@ app.use(cors({
   origin: function (origin, callback) {
     // Allow specific origins
     const allowedOrigins = [
-      process.env.FRONTEND_DEPLOYED_URL,
-      process.env.FRONTEND_RAHUL_DEPLOYED_URL,
+      'http://ec2-51-21-201-59.eu-north-1.compute.amazonaws.com:3000',
+      'http://ec2-13-60-49-247.eu-north-1.compute.amazonaws.com:3000/',
       'http://localhost:3000'
     ];
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {

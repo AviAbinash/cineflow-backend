@@ -38,7 +38,20 @@ const app = express();
 
 //middlewares
 //enabling cors to allow nextjs front end to communicate backend
-app.use(cors(corsOptions));;
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow specific origins
+    const allowedOrigins = [
+      'http://ec2-51-21-201-59.eu-north-1.compute.amazonaws.com:3000',
+      'http://localhost:3000'
+    ];
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+}));
 //parse incoming request
 app.use(express.json());
 

@@ -49,11 +49,11 @@ app.use(
         "http://ec2-13-61-15-102.eu-north-1.compute.amazonaws.com:3000",
         "http://localhost:3000",
       ];
-      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
+      // if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      //   callback(null, true);
+      // } else {
+      //   callback(new Error("Not allowed by CORS"));
+      // }
     },
   })
 );

@@ -43,7 +43,7 @@ app.use(cors({
     // Allow specific origins
     const allowedOrigins = [
       process.env.FRONTEND_DEPLOYED_URL,
-      FRONTEND_RAHUL_DEPLOYED_URL,
+      process.env.FRONTEND_RAHUL_DEPLOYED_URL,
       'http://localhost:3000'
     ];
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {

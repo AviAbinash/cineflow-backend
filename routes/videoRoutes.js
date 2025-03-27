@@ -412,4 +412,100 @@ videoRouter.get("/:videoId/getLikes", authenticationToken, async (req, res) => {
   }
 });
 
+
+// Delete a video
+videoRouter.delete("/:videoId", async (req, res) => {
+  try {
+    // Find the video by ID
+    const video = await Video.findById(req.params.videoId);
+
+    // Check if video exists
+    if (!video) {
+      return res.status(404).json({ message: "Video not found" });
+    }
+
+    // Delete the video from the database
+    await Video.findByIdAndDelete(req.params.videoId);
+
+    // Optional: If you're using S3, delete the video and poster from S3
+    // Note: This would require your S3 upload middleware
+    // await s3.deleteObject({
+    //   Bucket: process.env.AWS_S3_BUCKET_NAME,
+    //   Key: video.url.split('/').pop(),
+    // }).promise();
+
+    res.status(200).json({
+      message: "Video deleted successfully",
+      videoId: req.params.videoId
+    });
+  } catch (error) {
+    console.error("Error deleting video:", error);
+    res.status(500).json({
+      message: "Error deleting video",
+      error: error.message
+    });
+  }
+});
+
+// Update a video
+videoRouter.put(
+  "/:videoId",
+  upload.fields([
+    { name: "video", maxCount: 1 },
+    { name: "poster", maxCount: 1 }
+  ]),
+  async (req, res) => {
+    try {
+      const videoId = req.params.videoId;
+
+      // Prepare update object
+      const updateData = {
+        title: req.body.title,
+        genre: req.body.genre,
+        type: req.body.type
+      };
+
+      // Check if new files are uploaded
+      if (req.files) {
+        // Update video file if a new one is uploaded
+        if (req.files["video"]) {
+          updateData.url = req.files["video"][0].location;
+        }
+
+        // Update poster if a new one is uploaded
+        if (req.files["poster"]) {
+          updateData.poster = req.files["poster"][0].location;
+        }
+      }
+
+      // Optional: Add poster URL if provided
+      if (req.body.posterUrl) {
+        updateData.poster = req.body.posterUrl;
+      }
+
+      // Find and update the video
+      const updatedVideo = await Video.findByIdAndUpdate(videoId, updateData, {
+        new: true, // Return the updated document
+        runValidators: true // Run model validations
+      });
+
+      // Check if video exists
+      if (!updatedVideo) {
+        return res.status(404).json({ message: "Video not found" });
+      }
+
+      res.status(200).json({
+        message: "Video updated successfully",
+        video: updatedVideo
+      });
+    } catch (error) {
+      console.error("Error updating video:", error);
+      res.status(500).json({
+        message: "Error updating video",
+        error: error.message
+      });
+    }
+  }
+);
+
 export default videoRouter;

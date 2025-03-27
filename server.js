@@ -46,7 +46,7 @@ app.use(
         "http://ec2-51-21-201-59.eu-north-1.compute.amazonaws.com:3000",
         "http://ec2-13-60-49-247.eu-north-1.compute.amazonaws.com:3000",
         "http://ec2-13-61-15-102.eu-north-1.compute.amazonaws.com:3000",
-        "http://ec2-13-61-15-102.eu-north-1.compute.amazonaws.com:3000/",
+        "http://ec2-13-61-15-102.eu-north-1.compute.amazonaws.com:3000",
         "http://localhost:3000",
         "http://localhost:3001",
 

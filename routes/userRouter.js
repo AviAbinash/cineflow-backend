@@ -74,4 +74,17 @@ userRouter.post(
     }
   }
 );
+
+userRouter.post("/updateProfile",authenticationToken,async(req,res)=>{
+  const userName = req.body.username
+   const user = req.user
+   console.log(req.user)
+   const isPresent = await  User.findById({_id:req.user.id})
+   if(isPresent){
+    const data =   await User.updateOne({name:userName})
+    console.log(data,"data")
+   }
+   res.status(200).json({ message: 'User details updated sucessfully' });
+
+})
 export default userRouter;
